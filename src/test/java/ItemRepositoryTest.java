@@ -1,6 +1,6 @@
 
 import model.GeneractiveItem;
-import model.Group;
+import model.group.Group;
 import model.Item;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

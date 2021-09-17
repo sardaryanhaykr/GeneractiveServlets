@@ -1,5 +1,7 @@
 package model;
 
+import model.group.Group;
+
 import java.util.Objects;
 
 public abstract class Item {

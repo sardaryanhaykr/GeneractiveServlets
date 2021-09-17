@@ -2,11 +2,10 @@ package servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.GeneractiveItem;
-import model.Group;
+import model.group.Group;
 import model.Item;
 import model.StockItem;
 import repository.ItemRepository;
-import service.ItemService;
 import servlet.enums.ItemType;
 
 

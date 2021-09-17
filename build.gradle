@@ -24,7 +24,7 @@ tasks.withType(JavaCompile) {
 dependencies {
     //https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
-
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
     compileOnly('javax.servlet:javax.servlet-api:4.0.1')
     //compileOnly('jakarta.platform:jakarta.jakartaee-web-api:9.0.0')
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")

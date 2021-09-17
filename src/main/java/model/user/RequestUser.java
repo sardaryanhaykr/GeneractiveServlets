@@ -4,6 +4,8 @@ public class RequestUser {
     private String userName;
     private String password;
 
+    public RequestUser(){}
+
     public RequestUser(String userName, String password) {
         this.userName = userName;
         this.password = password;

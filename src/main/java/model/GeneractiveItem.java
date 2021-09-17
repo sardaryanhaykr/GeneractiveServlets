@@ -1,5 +1,7 @@
 package model;
 
+import model.group.Group;
+
 public class GeneractiveItem extends Item{
     private double complexity;
 

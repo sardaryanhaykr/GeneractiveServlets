@@ -1,4 +1,6 @@
-package model;
+package model.group;
+
+import model.Item;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +18,18 @@ public class Group {
         this.parent = parent;
         this.subGroups = subGroups;
         this.items = items;
+    }
+
+    public Group(int id,String name,Group parent){
+        this(id,name,parent,null,null);
+    }
+
+    public Group(int id){
+        this(id,null,null);
+    }
+
+    public Group(int id,String name){
+        this(id,name,null,null,null);
     }
 
     public Group(String name, Group parent, List<Group> subGroups, List<Item> items) {
@@ -96,6 +110,6 @@ public class Group {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, parent, subGroups, items);
+        return Objects.hash(id);
     }
 }

@@ -1,6 +1,6 @@
 package service;
 
-import model.Group;
+import model.group.Group;
 import repository.GroupRepository;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package service;
 
-import model.Group;
+import model.group.Group;
 import model.Item;
 import repository.GroupRepository;
 import repository.ItemRepository;

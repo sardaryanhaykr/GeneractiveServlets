@@ -1,5 +1,5 @@
 
-import model.Group;
+import model.group.Group;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

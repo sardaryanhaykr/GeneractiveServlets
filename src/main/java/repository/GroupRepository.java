@@ -1,6 +1,6 @@
 package repository;
 
-import model.Group;
+import model.group.Group;
 
 import java.util.ArrayList;
 import java.util.List;
