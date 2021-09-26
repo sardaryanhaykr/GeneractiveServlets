@@ -1,14 +1,32 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import model.group.Group;
 
+import javax.persistence.*;
 import java.util.Objects;
-
-public abstract class Item {
+@Entity
+@Table(name="items")
+public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "items_id_seq")
+    @SequenceGenerator(name = "items_id_seq", sequenceName = "items_id_seq", allocationSize = 1)
     private long id;
+
+    @Column(name="price")
     private double price;
+
+    @Column(name="name")
     private String name;
+
+    @Column(name="image_url")
     private String imageUrl;
+
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    @JsonIgnore
     private Group parent;
 
     private Item(long id, double price, String name, String imageUrl, Group parent) {
@@ -35,7 +53,10 @@ public abstract class Item {
         this(0, 0, null, null, null);
     }
 
-    public abstract double calculatePrice(Configuration configuration);
+    public double calculatePrice(Configuration configuration){
+        //-------------------------implementatin expected-----------
+        return price;
+    }
 
     public long getId() {
         return id;

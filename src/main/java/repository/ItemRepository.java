@@ -1,6 +1,10 @@
 package repository;
 
 import model.Item;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+import orm.HibernateConfiguration;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,99 +16,144 @@ import java.util.stream.Collectors;
  * Created by Hayk on 19.07.2021.
  */
 public class ItemRepository implements CrudRepository<Item, Long> {
-    private final List<Item> items;
-
-    public ItemRepository() {
-        items = new ArrayList<>();
-    }
+    public static final HibernateConfiguration HIBERNATE_CONFIGURATION =
+            HibernateConfiguration.getInstance();
 
     @Override
     public void create(Item item) {
-        items.add(item);
+
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            session.save(item);
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        }
+        finally {
+            session.close();
+        }
     }
 
     @Override
     public void update(Item item, Long id) {
-        Item item1;
-        if(findById(id).isPresent()){
-            item1 = findById(id).get();
-            if (item.getPrice() != 0) {
-                item1.setPrice(item.getPrice());
+        Session session = HibernateConfiguration.getInstance().getSession();
+        item.setId(id);
+        try {
+            Transaction transaction = session.beginTransaction();
+            session.merge(item);
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
             }
-            if (item.getName() != null) {
-                item1.setName(item.getName());
-            }
-            if (item.getParent() != null) {
-                item1.setParent(item.getParent());
-            }
-            if (item.getImageUrl() != null) {
-                item1.setImageUrl(item.getImageUrl());
-            }
+            throw e;
+        }
+        finally {
+            session.close();
         }
     }
 
     @Override
     public void delete(Long id) {
-        if (findById(id).isPresent()) {
-            items.remove(findById(id).get());
+        Session session=HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            session.createSQLQuery("delete from items where id="+id);
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        }
+        finally {
+            session.close();
         }
     }
 
     public Optional<Item> findById(long id) {
-        return items.stream()
-                .filter(item -> item.getId() == id)
-                .findFirst();
+        Item item;
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            item=session.get(Item.class,id);
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        }
+        finally {
+            session.close();
+        }
+        return Optional.ofNullable(item);
     }
 
-    public List<Item> findAll() {
+    public List<? extends Item> findAll() {
+        List<Item> items =new ArrayList<>();
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            items=session.createSQLQuery("from items").getResultList();
+
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        }
         return items;
     }
 
     public Optional<Item> findByName(String name) {
-        return items.stream()
-                .filter(item1 -> name.equals(item1.getName()))
-                .findFirst();
-
-
+        Item item;
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            item=(Item) session.createSQLQuery("from items where name=:"+name).uniqueResult();
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        }
+        finally {
+            session.close();
+        }
+        return Optional.ofNullable(item);
     }
 
-    public List<Item> findHighestPricedItems() {
-        double maxPrice = items.stream().max(Comparator.comparing(Item::getPrice)).get().getPrice();
-        return items.stream()
-                .filter(item -> item.getPrice() == maxPrice)
-                .collect(Collectors.toList());
+    public List<Item> search(double priceL,double priceH){
+        List<Item> items;
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            items=session.createSQLQuery("from items where price>=:"+priceL+" and price<=:"+priceH).getResultList();
 
-    }
-
-    public List<Item> findSmallestPricedItems() {
-        double minPrice = items.stream()
-                .min(Comparator.comparing(Item::getPrice))
-                .get()
-                .getPrice();
-        return items.stream()
-                .filter(item -> item.getPrice() == minPrice)
-                .collect(Collectors.toList());
-
-    }
-
-    public List<Item> findByPriceRange(double priceMin, double priceMax) {
-
-        return items.stream()
-                .filter(item -> item.getPrice() >= priceMin && item.getPrice() <= priceMax)
-                .collect(Collectors.toList());
-
-    }
-
-    public List<Item> searchItems(String name, double priceL, double priceH){
-        return findByPriceRange(priceL,priceH).stream()
-                .filter(item -> !name.isEmpty()&&item.getName().equals(name))
-                .collect(Collectors.toList());
-    }
-
-    public void clear(){
-        items.clear();
-    }
-    public boolean isEmpty(){
-        return items.isEmpty();
+            transaction.commit();
+        }
+        catch (Exception e){
+            if ( session.getTransaction().getStatus() == TransactionStatus.ACTIVE ) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        }
+        finally {
+            session.close();
+        }
+        return items;
     }
 }

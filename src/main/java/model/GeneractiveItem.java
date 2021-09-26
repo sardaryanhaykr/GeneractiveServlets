@@ -2,7 +2,14 @@ package model;
 
 import model.group.Group;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="items")
 public class GeneractiveItem extends Item{
+    @Column(name="complexity")
     private double complexity;
 
     public GeneractiveItem(double price, String name, String imageUrl, Group parent, double complexity){

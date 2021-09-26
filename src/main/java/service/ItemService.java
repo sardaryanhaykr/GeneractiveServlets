@@ -19,12 +19,8 @@ public class ItemService {
         groupRepository = new GroupRepository();
     }
 
-    public void add(Item item, Group group) {
-        if (getById(item.getId()) == null) {
-            ItemUtil itemUtil = new ItemUtil();
-            itemUtil.addRelation(item, group);
-            itemRepository.create(item);
-        }
+    public void add(Item item) {
+        itemRepository.create(item);
     }
 
     public void update(Item item, long id) {
@@ -41,31 +37,16 @@ public class ItemService {
         }
     }
 
-    public List<Item> getAll() {
+    public List<? extends Item> getAll() {
         return itemRepository.findAll();
     }
 
-    public List<Item> getAllByGroup(Group group) {
-        return group.getItems();
-    }
 
     public Item getById(long id) {
         if (itemRepository.findById(id).isPresent()) {
             return itemRepository.findById(id).get();
-        }else{
+        } else {
             return null;
-        }
-    }
-
-    private class ItemUtil {
-        private ItemUtil() {
-        }
-
-        private void addRelation(Item item, Group group) {
-            item.setParent(group);
-            if (group != null) {
-                group.getItems().add(item);
-            }
         }
     }
 }

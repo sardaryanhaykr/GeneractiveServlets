@@ -17,6 +17,10 @@ public class ResponseGroup {
 
     public ResponseGroup(){}
 
+    public ResponseGroup(Group group){
+        this(group.getId(),group.getName());
+    }
+
     public int getId() {
         return id;
     }

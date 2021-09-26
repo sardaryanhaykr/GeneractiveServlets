@@ -1,15 +1,33 @@
 package model.group;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import model.Item;
 
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
+@Table(name = "\"groups\"")
 public class Group {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "groups_id_seq")
+    @SequenceGenerator(name = "groups_id_seq", sequenceName = "groups_id_seq", allocationSize = 1)
     private int id;
+
+    @Column(name = "name")
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
     private Group parent;
+
+    @OneToMany(mappedBy = "parent", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Group> subGroups;
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Item> items;
 
     private Group(int id, String name, Group parent, List<Group> subGroups, List<Item> items) {
@@ -20,20 +38,25 @@ public class Group {
         this.items = items;
     }
 
-    public Group(int id,String name,Group parent){
-        this(id,name,parent,null,null);
+
+    public Group(int id, String name, Group parent) {
+        this(id, name, parent, null, null);
     }
 
-    public Group(int id){
-        this(id,null,null);
+    public Group(int id) {
+        this(id, null, null);
     }
 
-    public Group(int id,String name){
-        this(id,name,null,null,null);
+    public Group(int id, String name) {
+        this(id, name, null, null, null);
     }
 
     public Group(String name, Group parent, List<Group> subGroups, List<Item> items) {
         this(0, name, parent, subGroups, items);
+    }
+
+    public Group(ResponseGroup group) {
+        this(group.getId(), group.getName(), new Group(group.getParentId()));
     }
 
     public Group(String name, Group parent, List<Group> subGroups) {
@@ -97,9 +120,10 @@ public class Group {
         group.setParent(this);
     }
 
-    public void addItem(Item item){
+    public void addItem(Item item) {
         items.add(item);
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

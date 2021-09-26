@@ -32,9 +32,6 @@ public class ItemSearchServlet extends HttpServlet {
             String value = request.getParameter(key);
             if (value != null && !value.isEmpty()) {
                 switch (key) {
-                    case PARAM_NAME:
-                        name = value;
-                        break;
                     case PARAM_PRICE_L:
                         priceL = Double.parseDouble(value);
                         break;
@@ -42,7 +39,7 @@ public class ItemSearchServlet extends HttpServlet {
                         priceH = Double.parseDouble(value);
                         break;
                 }
-                List<Item> items=itemRepository.searchItems(name,priceL,priceH);
+                List<Item> items=itemRepository.search(priceL,priceH);
                 ObjectMapper objectMapper = new ObjectMapper();
                 response.getWriter().write(objectMapper.writeValueAsString(items));
             }

@@ -1,84 +1,190 @@
 package repository;
 
 import model.group.Group;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+import orm.HibernateConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created by Hayk on 19.07.2021.
  */
-public class GroupRepository implements CrudRepository<Group, Integer> {
+public class GroupRepository {
 
-    private final List<Group> groups;
+    public Group create(Group group) {
 
-    public GroupRepository() {
-        groups = new ArrayList<>();
+        Session session = HibernateConfiguration.getInstance().getSession();
+        Group created;
+        try {
+            Transaction transaction = session.beginTransaction();
+            int id = (int) session.save(group);
+            created = session.get(Group.class, id);
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+        return created;
     }
 
-    @Override
-    public void create(Group group) {
-        groups.add(group);
-    }
 
-    @Override
     public void update(Group group, Integer id) {
-        Group group1;
-        if (findById(id).isPresent()) {
-            group1 = findById(id).get();
-            if (group.getName() != null) {
-                group1.setName(group.getName());
+
+        Session session = HibernateConfiguration.getInstance().getSession();
+        group.setId(id);
+        try {
+            Transaction transaction = session.beginTransaction();
+            session.merge(group);
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
             }
-            if (group.getParent() != null) {
-                group1.setParent(group.getParent());
-            }
-            if (group.getSubGroups() != null) {
-                group1.setSubGroups(group.getSubGroups());
-            }
-            if (group.getItems() != null) {
-                group1.setItems(group.getItems());
-            }
+            throw e;
+        } finally {
+            session.close();
         }
     }
 
-    @Override
-    public void delete(Integer id) {
-        if (findById(id).isPresent()) {
-            groups.remove(findById(id).get());
+
+    public void delete(Group group) {
+        Session session = HibernateConfiguration.getInstance().getSession();
+
+        try {
+            Transaction transaction = session.beginTransaction();
+            session.delete(group);
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
         }
     }
 
     public Optional<Group> findById(int id) {
-        return groups.stream()
-                .filter(group -> group.getId() == id)
-                .findFirst();
+        Group group;
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            group = session.get(Group.class, id);
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+        return Optional.ofNullable(group);
+    }
+
+    public boolean isParent(int id) {
+        Long count = 0L;
+        Session session = HibernateConfiguration.getInstance().getSession();
+        try {
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createQuery("select count(*) from Group where parent.id=:id");
+            query.setParameter("id", id);
+            count = (Long) query.getSingleResult();
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+        return count.intValue() > 0;
     }
 
     public List<Group> findAll() {
+        Session session = HibernateConfiguration.getInstance().getSession();
+        List<Group> groups;
+
+        try {
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createQuery("FROM Group", Group.class);
+            groups = query.list();
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
         return groups;
     }
 
     public List<Group> findAllRoot() {
-        return groups.stream()
-                .filter(group -> group.getParent() == null)
-                .collect(Collectors.toList());
+        Session session = HibernateConfiguration.getInstance().getSession();
+        List<Group> groups;
+        try {
+            Transaction transaction = session.beginTransaction();
+            groups = session.createQuery("from Group where parent_id=null ", Group.class).list();
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+        return groups;
     }
 
     public Optional<Group> findByName(String name) {
-        return groups.stream()
-                .filter(group1 -> group1.getName().equals(name))
-                .findFirst();
+        Session session = HibernateConfiguration.getInstance().getSession();
+        Group group;
+        try {
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createQuery("from Group where name=:name");
+            query.setParameter("name", name);
+            group = (Group) query.uniqueResult();
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+        return Optional.ofNullable(group);
     }
 
-    public List<Group> findByParent(Group parent) {
-        return groups.stream().filter(group -> group.getParent() != null)
-                .filter(group -> group.getParent().equals(parent))
-                .collect(Collectors.toList());
-    }
-
-    public void clear() {
-        groups.clear();
+    public Optional<List<Group>> findByParent(int id) {
+        Session session = HibernateConfiguration.getInstance().getSession();
+        List<Group> groups;
+        try {
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createQuery("from Group  where parent.id=:id");
+            query.setParameter("id", id);
+            groups = query.list();
+            transaction.commit();
+        } catch (Exception e) {
+            if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {
+                session.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+        return Optional.ofNullable(groups);
     }
 }

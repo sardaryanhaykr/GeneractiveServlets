@@ -13,6 +13,10 @@ public class RequestGroup {
         this(name,0);
     }
 
+    public RequestGroup(Group group){
+        this(group.getName());
+    }
+
     public RequestGroup() {}
 
     public String getName() {
