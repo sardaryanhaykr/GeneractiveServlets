@@ -1,15 +1,3 @@
-
-import model.GeneractiveItem;
-import model.group.Group;
-import model.Item;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import repository.GroupRepository;
-import repository.ItemRepository;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Created by Hayk on 14.08.2021.
  */
