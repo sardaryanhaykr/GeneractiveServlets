@@ -24,11 +24,22 @@ tasks.withType(JavaCompile) {
 dependencies {
     //https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
-
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
     compileOnly('javax.servlet:javax.servlet-api:4.0.1')
     //compileOnly('jakarta.platform:jakarta.jakartaee-web-api:9.0.0')
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.5.7.Final'
+
+    implementation group: 'org.springframework', name: 'spring-context', version: '5.3.10'
+    // https://mvnrepository.com/artifact/org.springframework/spring-core
+    implementation group: 'org.springframework', name: 'spring-core', version: '5.3.10'
+    //https://mvnrepository.com/artifact/org.springframework/spring-beans
+    implementation group: 'org.springframework', name: 'spring-beans', version: '5.3.10'
+
+
+    testImplementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
+    testImplementation group: 'com.h2database', name: 'h2', version: '1.4.194'
 }
 
 test {
