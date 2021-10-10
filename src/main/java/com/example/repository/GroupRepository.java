@@ -99,7 +99,7 @@ public class GroupRepository {
     }
 
     public boolean isParent(int id) {
-        Long count = 0L;
+        Long count;
         Session session = sessionFactory.getCurrentSession();
         try {
             Transaction transaction = session.beginTransaction();
@@ -163,7 +163,7 @@ public class GroupRepository {
             Transaction transaction = session.beginTransaction();
             Query query = session.createQuery("from Group where name=:name");
             query.setParameter("name", name);
-            group = (Group) query.uniqueResult();
+            group = (Group) query.list().get(0);
             transaction.commit();
         } catch (Exception e) {
             if (session.getTransaction().getStatus() == TransactionStatus.ACTIVE) {

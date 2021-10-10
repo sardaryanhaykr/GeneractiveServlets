@@ -129,7 +129,7 @@ public class Group {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Group group = (Group) o;
-        return id == group.id && Objects.equals(name, group.name) && Objects.equals(parent, group.parent) && Objects.equals(subGroups, group.subGroups) && Objects.equals(items, group.items);
+        return id == group.id;
     }
 
     @Override

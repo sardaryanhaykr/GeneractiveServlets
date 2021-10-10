@@ -125,7 +125,9 @@ public class ItemRepository{
         Session session = sessionFactory.getCurrentSession();
         try {
             Transaction transaction = session.beginTransaction();
-            item=(Item) session.createSQLQuery("from items where name=:"+name).uniqueResult();
+            Query query=session.createQuery("from Item where name=:name");
+            query.setParameter("name",name);
+            item=(Item)query.list().get(0);
             transaction.commit();
         }
         catch (Exception e){
